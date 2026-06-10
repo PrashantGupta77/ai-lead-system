@@ -3,11 +3,16 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 
+from src.core.logger import logger
+
 load_dotenv()
 
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
+
+
+MODEL_NAME = "llama-3.1-8b-instant"
 
 
 def call_llm(prompt: str) -> str:
@@ -16,7 +21,7 @@ def call_llm(prompt: str) -> str:
 
         response = client.chat.completions.create(
 
-            model="llama3-8b-8192",
+            model=MODEL_NAME,
 
             messages=[
 
@@ -36,10 +41,18 @@ def call_llm(prompt: str) -> str:
             max_tokens=100
         )
 
-        return response.choices[0].message.content.strip()
+        return (
+            response
+            .choices[0]
+            .message
+            .content
+            .strip()
+        )
 
     except Exception as e:
 
-        print("LLM ERROR:", str(e))
+        logger.error(
+            f"LLM call failed: {str(e)}"
+        )
 
         return ""

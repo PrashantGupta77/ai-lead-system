@@ -1,0 +1,38 @@
+[
+    {
+        "message": "Need AI chatbot implementation this week",
+        "expected_label": "HOT"
+    },
+    {
+        "message": "Can we schedule a demo tomorrow?",
+        "expected_label": "HOT"
+    },
+    {
+        "message": "We need an automation solution urgently",
+        "expected_label": "HOT"
+    },
+    {
+        "message": "Interested in learning about your services",
+        "expected_label": "WARM"
+    },
+    {
+        "message": "Can you send more details?",
+        "expected_label": "WARM"
+    },
+    {
+        "message": "We are evaluating multiple vendors",
+        "expected_label": "WARM"
+    },
+    {
+        "message": "Just browsing your website",
+        "expected_label": "COLD"
+    },
+    {
+        "message": "What exactly does your company do?",
+        "expected_label": "COLD"
+    },
+    {
+        "message": "Saw your LinkedIn page",
+        "expected_label": "COLD"
+    }
+]

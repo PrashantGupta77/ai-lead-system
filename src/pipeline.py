@@ -47,8 +47,6 @@ FALLBACK_RESPONSE_BY_LABEL = {
 
 def compute_confidence(score: int, label: str) -> float:
 
-    # business-friendly confidence calibration
-
     if label == "HOT":
 
         if score >= 6:
@@ -57,7 +55,7 @@ def compute_confidence(score: int, label: str) -> float:
         elif score >= 4:
             return 0.88
 
-        return 0.8
+        return 0.80
 
     elif label == "WARM":
 
@@ -65,14 +63,14 @@ def compute_confidence(score: int, label: str) -> float:
             return 0.78
 
         elif score >= 2:
-            return 0.7
+            return 0.70
 
-        return 0.6
+        return 0.60
 
     else:
 
-        if score == 0:
-            return 0.45
+        if score <= 0:
+            return 0.50
 
         return 0.55
 
@@ -86,15 +84,15 @@ def classify_lead(message: str):
     msg = message.lower().strip()
 
     # -----------------------------------
-    # low quality detection
+    # low-quality detection
     # -----------------------------------
 
     if is_low_quality(message):
 
-        return "COLD", 0.4
+        return "COLD", 0.40
 
     # -----------------------------------
-    # curiosity / informational intent
+    # curiosity signals
     # -----------------------------------
 
     curiosity_patterns = [
@@ -103,17 +101,22 @@ def classify_lead(message: str):
         "tell me more",
         "just exploring",
         "checking out",
-        "saw your page",
         "who are you",
-        "how does this work"
+        "how does this work",
+        "just browsing",
+        "browsing",
+        "linkedin page",
+        "saw your linkedin",
+        "visited your website",
+        "your website"
     ]
 
     if any(pattern in msg for pattern in curiosity_patterns):
 
-        return "COLD", 0.5
+        return "COLD", 0.55
 
     # -----------------------------------
-    # high-intent detection
+    # high-intent signals
     # -----------------------------------
 
     high_intent_patterns = [
@@ -125,7 +128,11 @@ def classify_lead(message: str):
         "get started",
         "need immediately",
         "urgent",
-        "asap"
+        "asap",
+        "proposal",
+        "quotation",
+        "quote",
+        "cost"
     ]
 
     if any(pattern in msg for pattern in high_intent_patterns):
@@ -140,19 +147,31 @@ def classify_lead(message: str):
 
     rule_label = rule_based_label(score)
 
-    # confident enough → skip LLM
+    confidence = compute_confidence(
+        score,
+        rule_label
+    )
+
+    # -----------------------------------
+    # strong signals
+    # -----------------------------------
 
     if score >= 2:
-
-        confidence = compute_confidence(
-            score,
-            rule_label
-        )
 
         return rule_label, confidence
 
     # -----------------------------------
-    # fallback to LLM
+    # definitely cold
+    # -----------------------------------
+
+    if score < 0:
+
+        return "COLD", 0.50
+
+    # -----------------------------------
+    # ambiguous case
+    # score == 0 or score == 1
+    # use LLM
     # -----------------------------------
 
     try:
@@ -161,29 +180,36 @@ def classify_lead(message: str):
             message=message
         )
 
-        result = call_llm(prompt).upper()
+        result = call_llm(
+            prompt
+        ).upper()
 
         match = re.search(
             r"\b(HOT|WARM|COLD)\b",
             result
         )
 
-        label = match.group(1) if match else "WARM"
+        label = (
+            match.group(1)
+            if match
+            else "WARM"
+        )
 
-        confidence = 0.55
-
-        return label, confidence
+        return label, 0.60
 
     except:
 
-        return "WARM", 0.5
+        return "WARM", 0.50
 
 
 # -----------------------------------
 # response generation
 # -----------------------------------
 
-def generate_response(message: str, label: str):
+def generate_response(
+    message: str,
+    label: str
+):
 
     try:
 
@@ -192,19 +218,33 @@ def generate_response(message: str, label: str):
             label=label
         )
 
-        result = call_llm(prompt)
+        result = call_llm(
+            prompt
+        )
 
         # retry once
 
         if not result:
 
-            result = call_llm(prompt)
+            result = call_llm(
+                prompt
+            )
 
         # -----------------------------------
         # fallback handling
         # -----------------------------------
 
-        if not result or len(result.split()) < 6:
+        if (
+
+            not result
+
+            or
+
+            len(
+                result.split()
+            ) < 6
+
+        ):
 
             return FALLBACK_RESPONSE_BY_LABEL.get(
                 label,
