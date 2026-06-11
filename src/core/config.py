@@ -16,6 +16,9 @@ class Settings:
 
     SECRET_KEY = os.getenv("SECRET_KEY")
 
+    ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+
     if not SECRET_KEY:
         raise ValueError("SECRET_KEY is not set in environment variables")
 

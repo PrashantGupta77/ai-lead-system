@@ -30,6 +30,10 @@ from src.database.init_db import (
     init_db
 )
 
+from src.database.init_admin import (
+    create_default_admin
+)
+
 from src.services.lead_service import LeadService
 
 from src.exceptions.handlers import (
@@ -64,6 +68,8 @@ app = FastAPI(
 )
 
 init_db()
+
+create_default_admin()
 
 app.add_exception_handler(
     Exception,
