@@ -88,39 +88,13 @@ def classify_lead(message: str):
     # -----------------------------------
 
     if is_low_quality(message):
-
         return "COLD", 0.40
 
     # -----------------------------------
-    # curiosity signals
-    # -----------------------------------
-
-    curiosity_patterns = [
-
-        "what do you do",
-        "tell me more",
-        "just exploring",
-        "checking out",
-        "who are you",
-        "how does this work",
-        "just browsing",
-        "browsing",
-        "linkedin page",
-        "saw your linkedin",
-        "visited your website",
-        "your website"
-    ]
-
-    if any(pattern in msg for pattern in curiosity_patterns):
-
-        return "COLD", 0.55
-
-    # -----------------------------------
-    # high-intent signals
+    # high-intent signals first
     # -----------------------------------
 
     high_intent_patterns = [
-
         "pricing",
         "demo",
         "book a call",
@@ -132,12 +106,22 @@ def classify_lead(message: str):
         "proposal",
         "quotation",
         "quote",
-        "cost"
+        "cost",
+        "connect",
+        "today",
+        "tomorrow",
+        "business problem",
+        "resolve my business problem",
+        "solve my business problem"
     ]
 
     if any(pattern in msg for pattern in high_intent_patterns):
+        score = rule_score(message)
 
-        return "HOT", 0.92
+        if score >= 6:
+            return "HOT", 0.92
+
+        return "WARM", 0.75
 
     # -----------------------------------
     # rule engine
@@ -153,11 +137,38 @@ def classify_lead(message: str):
     )
 
     # -----------------------------------
-    # strong signals
+    # curiosity signals
+    # do not override strong business intent
+    # -----------------------------------
+
+    curiosity_patterns = [
+        "what do you do",
+        "tell me more",
+        "just exploring",
+        "checking out",
+        "who are you",
+        "how does this work",
+        "just browsing",
+        "browsing",
+        "linkedin page",
+        "saw your linkedin",
+        "visited your website",
+        "your website"
+    ]
+
+    has_curiosity = any(
+        pattern in msg
+        for pattern in curiosity_patterns
+    )
+
+    if has_curiosity and score < 2:
+        return "COLD", 0.55
+
+    # -----------------------------------
+    # strong rule signals
     # -----------------------------------
 
     if score >= 2:
-
         return rule_label, confidence
 
     # -----------------------------------
@@ -165,17 +176,13 @@ def classify_lead(message: str):
     # -----------------------------------
 
     if score < 0:
-
         return "COLD", 0.50
 
     # -----------------------------------
-    # ambiguous case
-    # score == 0 or score == 1
-    # use LLM
+    # ambiguous case: use LLM
     # -----------------------------------
 
     try:
-
         prompt = CLASSIFICATION_PROMPT.format(
             message=message
         )
@@ -198,9 +205,7 @@ def classify_lead(message: str):
         return label, 0.60
 
     except:
-
         return "WARM", 0.50
-
 
 # -----------------------------------
 # response generation
