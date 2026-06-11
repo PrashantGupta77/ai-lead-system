@@ -1,39 +1,125 @@
 # AI Lead Qualification System
 
-Production-oriented AI Lead Qualification + Smart Response System built using FastAPI, Groq LLM, and hybrid lead scoring logic.
+Production-ready AI-powered Lead Qualification and Smart Response Platform built using FastAPI, Groq LLM, Streamlit, MySQL, Docker, and Render.
 
-This system:
-- accepts lead input from forms/chat
-- classifies leads into HOT / WARM / COLD
-- generates contextual AI responses
-- handles failures gracefully
-- is designed with production scalability in mind
+The system automatically classifies incoming leads into HOT, WARM, and COLD categories, generates contextual AI responses, tracks lead analytics, and provides an admin dashboard for monitoring lead activity.
+
+---
+
+# Live Demo
+
+## Frontend (Streamlit UI)
+
+https://ai-lead-system-ui.onrender.com
+
+## Backend API
+
+https://ai-lead-system-jkto.onrender.com
+
+## Swagger Documentation
+
+https://ai-lead-system-jkto.onrender.com/docs
 
 ---
 
 # Features
 
-- Hybrid lead classification (rules + LLM fallback)
-- AI-powered contextual response generation
-- Confidence scoring
-- Label-aware fallback responses
-- FastAPI REST API
-- Swagger API documentation
-- Modular architecture
-- Production-oriented design
+### AI Lead Qualification
+
+* HOT / WARM / COLD lead classification
+* Hybrid Rule Engine + LLM fallback
+* Confidence scoring
+* Business intent detection
+* Curiosity signal detection
+* Urgency detection
+
+### AI Response Generation
+
+* Context-aware responses
+* Lead-type specific responses
+* Retry mechanism
+* Fallback response handling
+
+### Authentication & Security
+
+* JWT Authentication
+* Password hashing using bcrypt
+* Role-Based Access Control (RBAC)
+* Admin/User authorization
+
+### Admin Dashboard
+
+* Lead analytics
+* HOT/WARM/COLD distribution
+* Recent lead monitoring
+* User management
+* Audit logging
+
+### Production Features
+
+* Dockerized deployment
+* Railway MySQL database
+* Render deployment
+* Automated testing
+* CI/CD ready architecture
+* Health monitoring
 
 ---
 
 # Tech Stack
 
-| Layer | Technology |
-|---|---|
-| API | FastAPI |
-| AI Model | Groq (Llama3-8B) |
-| Validation | Pydantic |
-| Environment | python-dotenv |
-| Runtime | Uvicorn |
-| Language | Python |
+| Layer             | Technology                  |
+| ----------------- | --------------------------- |
+| Frontend          | Streamlit                   |
+| Backend           | FastAPI                     |
+| AI Model          | Groq (Llama 3.1 8B Instant) |
+| Database          | MySQL                       |
+| ORM               | SQLAlchemy                  |
+| Authentication    | JWT                         |
+| Password Security | bcrypt                      |
+| Testing           | Pytest                      |
+| Containerization  | Docker                      |
+| Deployment        | Render                      |
+| Database Hosting  | Railway                     |
+| CI/CD             | GitHub Actions              |
+
+---
+
+# System Architecture
+
+```text
+                    ┌──────────────────┐
+                    │   Streamlit UI   │
+                    │    Frontend      │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │  FastAPI Backend │
+                    └────────┬─────────┘
+                             │
+           ┌─────────────────┼─────────────────┐
+           ▼                                   ▼
+
+   Rule-Based Engine                     Groq LLM
+   Intent Scoring                        Classification
+   Signal Detection                      Response Generation
+
+           └─────────────────┬─────────────────┘
+                             ▼
+
+                  Lead Classification Engine
+
+                             ▼
+
+                     MySQL Database
+                        (Railway)
+
+                             ▼
+
+                    Admin Dashboard
+                    Analytics & Logs
+```
 
 ---
 
@@ -42,63 +128,93 @@ This system:
 ```text
 ai-lead-system/
 │
-├── .gitignore
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── cd.yml
+│
+├── frontend/
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   │
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── client.py
+│   │
+│   ├── pages/
+│   │   ├── __init__.py
+│   │   ├── login.py
+│   │   ├── lead_processing.py
+│   │   └── admin_dashboard.py
+│   │
+│   └── utils/
+│       ├── __init__.py
+│       └── auth.py
+│
+├── src/
+│   │
+│   ├── auth/
+│   │   ├── dependencies.py
+│   │   ├── fake_users.py
+│   │   ├── passwords.py
+│   │   ├── rbac.py
+│   │   └── security.py
+│   │
+│   ├── core/
+│   │   ├── config.py
+│   │   └── logger.py
+│   │
+│   ├── database/
+│   │   ├── db.py
+│   │   ├── dependencies.py
+│   │   ├── init_db.py
+│   │   ├── init_admin.py
+│   │   ├── repository.py
+│   │   ├── user_repository.py
+│   │   ├── lead_model.py
+│   │   ├── user_model.py
+│   │   ├── audit_log_model.py
+│   │   └── audit_repository.py
+│   │
+│   ├── evaluation/
+│   │   ├── evaluator.py
+│   │   └── metrics.py
+│   │
+│   ├── exceptions/
+│   │   └── handlers.py
+│   │
+│   ├── monitoring/
+│   │   └── performance.py
+│   │
+│   ├── services/
+│   │   └── lead_service.py
+│   │
+│   ├── llm.py
+│   ├── pipeline.py
+│   ├── scoring.py
+│   ├── validators.py
+│   ├── prompts.py
+│   ├── models.py
+│   └── main.py
+│
+├── tests/
+│   ├── test_api.py
+│   ├── test_pipeline.py
+│   ├── test_scoring.py
+│   ├── test_validators.py
+│   ├── test_llm_mocking.py
+│   ├── test_evaluator.py
+│   ├── test_metrics.py
+│   ├── test_passwords.py
+│   ├── test_security.py
+│   └── test_monitoring.py
+│
+├── Dockerfile
+├── docker-compose.yml
 ├── requirements.txt
 ├── .env.example
-├── README.md
-│
-└── src/
-    ├── models.py
-    ├── prompts.py
-    ├── scoring.py
-    ├── llm.py
-    ├── pipeline.py
-    ├── validators.py
-    ├── main.py
-│
-├── samples/
-    ├── cold_input.json
-    ├── cold_output.json
-    ├── hot_input.json
-    ├── hot_output.json
-    ├── low_quality_input.json
-    ├── low_quality_output.json
-    ├── warm_input.json
-    ├── warm_output.json
-```
-
----
-
-# Architecture Flow
-
-```text
-Lead Input (Form / Chat)
-            │
-            ▼
-      FastAPI Endpoint
-            │
-            ▼
-     Validation Layer
-            │
-            ▼
-    Rule-Based Scoring
-            │
-            ├── High confidence
-            │       ▼
-            │   Direct Classification
-            │
-            └── Low confidence
-                    ▼
-             LLM Classification
-                    │
-                    ▼
-          Confidence Calculation
-                    │
-                    ▼
-          AI Response Generation
-                    │
-                    ▼
-             JSON API Response
+└── README.md
 ```
 
 ---
@@ -106,328 +222,167 @@ Lead Input (Form / Chat)
 # Lead Classification Logic
 
 ## HOT
-- urgent buying intent
-- scaling/business pressure
-- immediate implementation signals
+
+* Requests pricing
+* Requests demo
+* Requests consultation
+* Urgent implementation need
+* Strong business intent
 
 ## WARM
-- evaluating solutions
-- interested but not urgent
-- exploratory business intent
+
+* Evaluating solutions
+* Interested in AI automation
+* Looking for more information
+* Moderate purchase intent
 
 ## COLD
-- curiosity only
-- informational questions
-- no clear buying signal
 
----
-
-# Installation
-
-## 1. Clone Repository
-
-```bash
-git clone https://github.com/PrashantGupta77/ai-lead-system.git
-```
-
----
-
-## 2. Navigate into Project
-
-```bash
-cd ai-lead-system
-```
-
----
-
-## 3. Create Virtual Environment
-
-### Windows
-
-```bash
-python -m venv venv
-```
-
-Activate:
-
-```bash
-venv\Scripts\activate
-```
-
----
-
-## 4. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 5. Create `.env`
-
-```env
-GROQ_API_KEY=your_groq_api_key
-```
-
----
-
-# Run the Application
-
-```bash
-uvicorn src.main:app --reload
-```
-
----
-
-# API Documentation
-
-Swagger UI:
-
-```text
-http://127.0.0.1:8000/docs
-```
+* Browsing
+* Researching
+* General curiosity
+* No buying signals
 
 ---
 
 # API Endpoints
 
-## Health Check
+## Authentication
 
-### GET `/`
+```text
+POST /register
+POST /login
+GET  /me
+```
 
-Response:
+## Lead Processing
 
-```json
-{
-  "status": "running"
-}
+```text
+POST /process
+```
+
+## Admin
+
+```text
+GET /analytics
+GET /recent-leads
+GET /users
+GET /audit-logs
+PUT /users/{id}/role
 ```
 
 ---
 
-## Process Lead
+# Testing
 
-### POST `/process`
+Run all tests:
 
-### Request
+```bash
+pytest -v
+```
 
-```json
-{
-  "message": "We need AI automation urgently for our sales pipeline."
-}
+Run coverage:
+
+```bash
+pytest --cov=src --cov-report=term-missing
+```
+
+Current Status:
+
+```text
+24 Tests Passed
+79% Test Coverage
 ```
 
 ---
 
-### Response
+# Docker Deployment
 
-```json
-{
-  "label": "HOT",
-  "confidence": 0.92,
-  "response": "Thanks for reaching out — this looks urgent. Can we schedule a quick call today to help you get started immediately?"
-}
+Build:
+
+```bash
+docker compose build
+```
+
+Run:
+
+```bash
+docker compose up
+```
+
+Stop:
+
+```bash
+docker compose down
 ```
 
 ---
 
-# Example Test Cases
+# Environment Variables
 
-## HOT Lead
+```env
+GROQ_API_KEY=
 
-```json
-{
-  "message": "We need automation for our sales funnel urgently. We are scaling fast."
-}
+MYSQL_USER=
+MYSQL_PASSWORD=
+MYSQL_HOST=
+MYSQL_PORT=
+MYSQL_DB=
+
+SECRET_KEY=
+
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
 ```
 
 ---
 
-## WARM Lead
+# Default Admin
 
-```json
-{
-  "message": "We are exploring AI tools for lead qualification."
-}
+The system automatically creates an admin account during first startup.
+
+```text
+Username: admin
+Password: admin123
 ```
 
----
-
-## COLD Lead
-
-```json
-{
-  "message": "I just saw your page. What do you do exactly?"
-}
-```
-
----
-
-# Confidence Scoring
-
-The system uses:
-- rule-based intent scoring
-- sigmoid normalization
-- label-aware calibration
-
-This produces stable probability-like confidence scores instead of arbitrary linear scaling.
-
----
-
-# Fallback Handling
-
-The system gracefully handles:
-
-- LLM failures
-- empty responses
-- weak outputs
-- ambiguous inputs
-- low-quality leads
-
-Fallback responses are label-aware to preserve conversational quality.
-
----
-
-# Production-Oriented Design Choices
-
-## Why Hybrid Classification?
-
-Rules:
-- fast
-- cheap
-- deterministic
-
-LLM:
-- flexible
-- contextual
-- semantic understanding
-
-Using both improves:
-- latency
-- reliability
-- cost efficiency
-
----
-
-# Challenges Faced
-
-## 1. Overclassification of Curiosity Leads
-
-Early versions incorrectly classified informational queries as WARM.
-
-### Solution
-
-Added TOFU (Top-of-Funnel) curiosity detection signals.
-
----
-
-## 2. Generic Fallback Responses
-
-Initial fallback responses ignored lead intent.
-
-### Solution
-
-Implemented label-aware fallback responses.
-
----
-
-## 3. Confidence Calibration
-
-Linear confidence scaling produced unstable scores.
-
-### Solution
-
-Replaced heuristic scaling with sigmoid-based normalization.
+Change these credentials immediately in production.
 
 ---
 
 # Future Improvements
 
-## 1. Replace Rules with ML Classifier
-
-Use:
-- Logistic Regression
-- XGBoost
-- Transformer-based classifiers
-
----
-
-## 2. Add Embeddings
-
-Semantic lead understanding using:
-- sentence-transformers
-- vector similarity
+* Alembic Database Migrations
+* Prometheus Monitoring
+* Grafana Dashboards
+* Redis Queue
+* Celery Background Jobs
+* CRM Integrations
+* ML-Based Lead Scoring
+* Semantic Embeddings Search
+* Lead Conversion Tracking
 
 ---
 
-## 3. Add Async Queue
+# Project Highlights
 
-Use:
-- Redis
-- Celery
+* Production-ready architecture
+* End-to-end AI workflow
+* Dockerized deployment
+* Railway MySQL integration
+* Render cloud deployment
+* JWT Authentication
+* Role-Based Access Control
+* Streamlit Admin Dashboard
+* Automated Testing
+* CI/CD Ready
 
-For:
-- retries
-- scalability
-- non-blocking processing
-
----
-
-## 4. CRM Integration
-
-Push HOT leads to:
-- HubSpot
-- Salesforce
-- Zoho
-
----
-
-## 5. Monitoring & Observability
-
-Add:
-- Prometheus
-- Grafana
-- Sentry
-
-Track:
-- latency
-- LLM failures
-- lead distribution
-- conversion metrics
-
----
-
-# Design Trade-Offs
-
-| Decision | Trade-Off |
-|---|---|
-| Rule + LLM Hybrid | Simpler than full ML pipeline |
-| FastAPI | Lightweight but minimal enterprise tooling |
-| Prompt Engineering | Faster MVP than model fine-tuning |
-| Rule-Based Signals | Easy debugging but less semantic |
-
----
-
-# Why This Approach?
-
-The focus of this project was:
-- clarity over complexity
-- production awareness
-- reliability
-- modularity
-- scalability
-
-Instead of overengineering the system, the implementation prioritizes maintainability and real-world deployment practicality.
-
----
-
-# Loom Video:
-```text
-https://www.loom.com/share/22ed77e2905b4c9f8ec369ea8999eb22
-```
 ---
 
 # Author
 
-Prashant Gupta
+Prashant Kumar Gupta
+
+MCA — University of Hyderabad
+
+AI/ML Engineer | Generative AI | FastAPI | Machine Learning | LLM Applications
